@@ -1,7 +1,8 @@
 // https://stackoverflow.com/a/66878952/10849036
 
-import { OriginalNodeData } from "../components/page";
-import insert from "./insert";
+// import { OriginalNodeData } from "../components/page";
+// import insert from "./insert";
+// import searchTextHL from 'search-text-highlight'
 
 export const getNodes = (
   selection: Selection,
@@ -28,132 +29,141 @@ export const getNodes = (
 };
 
 const highlightElements = (
-  selection: Selection,
-  className: string,
-  originalNodesData: OriginalNodeData[]
+  id: string,
+  text: string,
+  html: string,
+  color: string
+  // selection: Selection,
+  // className: string,
+  // originalNodesData: OriginalNodeData[]
 ) => {
-  const range = selection.getRangeAt(0);
-  const {
-    commonAncestorContainer,
-    startContainer,
-    endContainer,
-    startOffset,
-    endOffset,
-  } = range;
+  html = html.replace(text, `<span class="text-highlight __node-id-${id} __highlight-${color}">$&</span>`);
+  // html = searchTextHL.highlight(html, text);
 
-  if (startContainer === endContainer) {
-    const span = document.createElement("span");
-    span.className = className;
+  return html;
 
-    const ogNodeIndex = originalNodesData.findIndex((ogData) =>
-      ogData.parts.some((part) => part.node === startContainer)
-    );
+  // const range = selection.getRangeAt(0);
+  // const {
+  //   commonAncestorContainer,
+  //   startContainer,
+  //   endContainer,
+  //   startOffset,
+  //   endOffset,
+  // } = range;
 
-    const ogNodePartIndex = originalNodesData[ogNodeIndex].parts.findIndex(
-      (part) => part.node === startContainer
-    );
+  // if (startContainer === endContainer) {
+  //   const span = document.createElement("span");
+  //   span.className = className;
 
-    range.surroundContents(span);
+  //   const ogNodeIndex = originalNodesData.findIndex((ogData) =>
+  //     ogData.parts.some((part) => part.node === startContainer)
+  //   );
 
-    const children = Array.from(startContainer.parentNode!.childNodes);
-    const spanIndex = children.indexOf(span);
+  //   const ogNodePartIndex = originalNodesData[ogNodeIndex].parts.findIndex(
+  //     (part) => part.node === startContainer
+  //   );
 
-    let newOgNodeData: OriginalNodeData = new OriginalNodeData([], 0);
+  //   range.surroundContents(span);
 
-    if (spanIndex != 0) {
-      const prevSpan = children[spanIndex - 1];
-      newOgNodeData.parts.push({
-        node: prevSpan,
-        preLength:
-          originalNodesData[ogNodeIndex].parts[ogNodePartIndex].preLength,
-      });
-    }
+  //   const children = Array.from(startContainer.parentNode!.childNodes);
+  //   const spanIndex = children.indexOf(span);
 
-    if (spanIndex != children.length - 1) {
-      const nextSpan = children[spanIndex + 1];
-      newOgNodeData.parts.push({
-        node: nextSpan,
-        preLength: span.textContent?.length ?? 0,
-      });
-    }
+  //   let newOgNodeData: OriginalNodeData = new OriginalNodeData([], 0);
 
-    originalNodesData[ogNodeIndex].parts.splice(ogNodePartIndex, 1);
-    originalNodesData[ogNodeIndex].parts = insert(
-      originalNodesData[ogNodeIndex].parts,
-      ogNodePartIndex,
-      ...newOgNodeData.parts
-    );
+  //   if (spanIndex != 0) {
+  //     const prevSpan = children[spanIndex - 1];
+  //     newOgNodeData.parts.push({
+  //       node: prevSpan,
+  //       preLength:
+  //         originalNodesData[ogNodeIndex].parts[ogNodePartIndex].preLength,
+  //     });
+  //   }
 
-    return;
-  }
+  //   if (spanIndex != children.length - 1) {
+  //     const nextSpan = children[spanIndex + 1];
+  //     newOgNodeData.parts.push({
+  //       node: nextSpan,
+  //       preLength: span.textContent?.length ?? 0,
+  //     });
+  //   }
 
-  const nodes = getNodes(selection, commonAncestorContainer.childNodes);
+  //   originalNodesData[ogNodeIndex].parts.splice(ogNodePartIndex, 1);
+  //   originalNodesData[ogNodeIndex].parts = insert(
+  //     originalNodesData[ogNodeIndex].parts,
+  //     ogNodePartIndex,
+  //     ...newOgNodeData.parts
+  //   );
 
-  nodes.forEach((node, index, listObj) => {
-    const { nodeValue } = node;
-    let text: string | null = null,
-      prevText: string | null = null,
-      nextText: string | null = null;
+  //   return;
+  // }
 
-    if (nodeValue == null) {
-      return;
-    }
+  // const nodes = getNodes(selection, commonAncestorContainer.childNodes);
 
-    if (index === 0) {
-      prevText = nodeValue.substring(0, startOffset);
-      text = nodeValue.substring(startOffset);
-    } else if (index === listObj.length - 1) {
-      text = nodeValue.substring(0, endOffset);
-      nextText = nodeValue.substring(endOffset);
-    } else {
-      text = nodeValue;
-    }
+  // nodes.forEach((node, index, listObj) => {
+  //   const { nodeValue } = node;
+  //   let text: string | null = null,
+  //     prevText: string | null = null,
+  //     nextText: string | null = null;
 
-    const span = document.createElement("span");
-    span.className = className;
-    span.append(document.createTextNode(text));
-    const { parentNode } = node;
+  //   if (nodeValue == null) {
+  //     return;
+  //   }
 
-    const ogNodeIndex = originalNodesData.findIndex((ogData) =>
-      ogData.parts.some((part) => part.node === node)
-    );
+  //   if (index === 0) {
+  //     prevText = nodeValue.substring(0, startOffset);
+  //     text = nodeValue.substring(startOffset);
+  //   } else if (index === listObj.length - 1) {
+  //     text = nodeValue.substring(0, endOffset);
+  //     nextText = nodeValue.substring(endOffset);
+  //   } else {
+  //     text = nodeValue;
+  //   }
 
-    const ogNodePartIndex = originalNodesData[ogNodeIndex].parts.findIndex(
-      (part) => part.node === node
-    );
+  //   const span = document.createElement("span");
+  //   span.className = className;
+  //   span.append(document.createTextNode(text));
+  //   const { parentNode } = node;
 
-    const preLength =
-      originalNodesData[ogNodeIndex].parts[ogNodePartIndex].preLength;
+  //   const ogNodeIndex = originalNodesData.findIndex((ogData) =>
+  //     ogData.parts.some((part) => part.node === node)
+  //   );
 
-    originalNodesData[ogNodeIndex].parts.splice(ogNodePartIndex, 1);
+  //   const ogNodePartIndex = originalNodesData[ogNodeIndex].parts.findIndex(
+  //     (part) => part.node === node
+  //   );
 
-    parentNode?.replaceChild(span, node);
+  //   const preLength =
+  //     originalNodesData[ogNodeIndex].parts[ogNodePartIndex].preLength;
 
-    if (prevText) {
-      const prevDOM = document.createTextNode(prevText);
-      parentNode?.insertBefore(prevDOM, span);
+  //   originalNodesData[ogNodeIndex].parts.splice(ogNodePartIndex, 1);
 
-      originalNodesData[ogNodeIndex].parts = insert(
-        originalNodesData[ogNodeIndex].parts,
-        ogNodePartIndex,
-        {
-          node: prevDOM,
-          preLength: preLength,
-        }
-      );
-    } else if (nextText) {
-      const nextDOM = document.createTextNode(nextText);
-      parentNode?.insertBefore(nextDOM, span.nextSibling);
-      originalNodesData[ogNodeIndex].parts = insert(
-        originalNodesData[ogNodeIndex].parts,
-        ogNodePartIndex,
-        {
-          node: nextDOM,
-          preLength: preLength,
-        }
-      );
-    }
-  });
+  //   parentNode?.replaceChild(span, node);
+
+  //   if (prevText) {
+  //     const prevDOM = document.createTextNode(prevText);
+  //     parentNode?.insertBefore(prevDOM, span);
+
+  //     originalNodesData[ogNodeIndex].parts = insert(
+  //       originalNodesData[ogNodeIndex].parts,
+  //       ogNodePartIndex,
+  //       {
+  //         node: prevDOM,
+  //         preLength: preLength,
+  //       }
+  //     );
+  //   } else if (nextText) {
+  //     const nextDOM = document.createTextNode(nextText);
+  //     parentNode?.insertBefore(nextDOM, span.nextSibling);
+  //     originalNodesData[ogNodeIndex].parts = insert(
+  //       originalNodesData[ogNodeIndex].parts,
+  //       ogNodePartIndex,
+  //       {
+  //         node: nextDOM,
+  //         preLength: preLength,
+  //       }
+  //     );
+  //   }
+  // });
 };
 
 export default highlightElements;

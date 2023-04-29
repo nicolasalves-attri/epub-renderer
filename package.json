@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build2": "yarn build --outDir ./build",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -13,6 +14,7 @@
     "vite-plugin-singlefile": "0.7.1"
   },
   "dependencies": {
+    "search-text-highlight": "^1.0.7",
     "url-join": "^5.0.0"
   }
 }

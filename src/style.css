@@ -7,16 +7,19 @@ body {
   font-variation-settings: "opsz" 32;
 }
 
-html.dark {
-  filter: invert(1) hue-rotate(0.5turn);
-}
-
+html.dark,
 html.dark img,
 html.dark image {
   filter: invert(1) hue-rotate(0.5turn);
-  max-width: 100%;
-  max-height: 100%;
 }
+
+img,
+image {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
 
 a:link,
 a:visited {
@@ -25,6 +28,33 @@ a:visited {
 
 * {
   word-wrap: break-word !important;
+  /* -webkit-user-modify: read-write-plaintext-only;
+  user-modify: read-write-plaintext-only; */
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: none;
+  /* -webkit-tap-highlight-color: #AC2937; */
+}
+
+/* IE9  - Also picked up by most modern browsers */
+::selection {
+  background:#AC2937;
+  color:#FFF;
+  text-shadow:none;
+}
+
+/* Safari & Chrome - Webkit Rendering */
+::-webkit-selection {
+  background:#AC2937;
+  color:#FFF;
+  text-shadow:none;
+}
+
+/* Mozilla based - Gecko Rendering */ 
+::-moz-selection {
+  background:#AC2937;
+  color:#FFF;
+  text-shadow:none;
 }
 
 @font-face {
@@ -90,4 +120,33 @@ html.dark .__highlight-blue {
 
 html.dark .__highlight-red {
   background-color: rgb(249, 119, 119);
+}
+
+
+:root {
+  --light-blue-color: #b1d9ff;
+  --dark-blue-color: #508fca;
+}
+
+.text-highlight {
+  /* background: var(--light-blue-color); */
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.text-highlight.__highlight-cor1 {
+  background: #CDD4D9;
+}
+
+.text-highlight.__highlight-cor2 {
+  background: #95A2AD;
+}
+
+.text-highlight.__highlight-cor3 {
+  background: #FFFF00;
+}
+
+.text-highlight.__highlight-cor4 {
+  background: #003B65;
+  color: white;
 }

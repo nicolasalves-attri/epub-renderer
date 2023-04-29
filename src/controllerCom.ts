@@ -27,13 +27,14 @@ export const onPage = (
     innerPage?: number,
     forced: boolean = false,
     notesData?: NoteData[]
-  ) =>
+  ) => {
     callback(
       pageFilePath,
       new InnerPage(innerPage ?? 0),
       forced,
       notesData ?? []
     );
+  }
 };
 
 export const onPageAnchor = (
@@ -124,6 +125,10 @@ export const onStyle = (callback: (style: StyleProperties) => void) => {
   (window as any).style = callback;
 };
 
+export const onApplyNotes = (callback: (notes: NoteData[]) => void) => {
+  (window as any).applyNotes = callback;
+};
+
 export const onCSS = (callback: (css: string) => void) => {
   (window as any).css = callback;
 };
@@ -131,6 +136,10 @@ export const onCSS = (callback: (css: string) => void) => {
 export const onClearSelection = (callback: () => void) => {
   (window as any).clearSelection = callback;
 };
+
+export const onPreloadPages = (callback: () => void) => {
+  (window as any).preloadPages = callback;
+}
 
 // To Controller
 export const notifyLoad = () => {
@@ -161,6 +170,7 @@ export const notifySelection = (
   notesRangeData: NoteRangeData[] | null,
   box: DOMRect
 ) => {
+  // TODO: Passa para o Flutter as informações da seleção
   callHandler(
     "selection",
     selection,

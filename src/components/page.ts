@@ -37,7 +37,8 @@ export interface StyleProperties {
   theme: StyleThemes;
 }
 
-const notesColorToName = ["yellow", "green", "blue", "red"];
+// const notesColorToName = ["yellow", "green", "blue", "red"];
+const notesColorToName = ["cor1", "cor2", "cor3", "cor4"];
 
 export class OriginalNodeData {
   constructor(
@@ -68,6 +69,9 @@ class Page {
     notes: NoteData[],
     private readonly onNotePressed: (noteId: string) => void
   ) {
+    console.log('Page > notes: '+notes);
+    this._noteElements = new Map();
+
     this._element = document.createElement("div");
     this._element.style.columnWidth = "100vw";
     this._element.style.position = "absolute";
@@ -84,6 +88,19 @@ class Page {
     this.parent.appendChild(this.container);
 
     this.renderHTML(initialHtml);
+    console.log(notes);
+    this.applyNotes(notes);
+
+    // this._notes.forEach((note) => {
+    //   initialHtml = highlightElements(
+    //     note.id,
+    //     note.highlightedText,
+    //     initialHtml,
+    //     notesColorToName[note.color]
+    //   )
+    // });
+    
+    // this.renderHTML(initialHtml);
     this._allAnchors = Array.from(this._element.querySelectorAll("[id]"));
     this._allElements = Array.from(this._element.querySelectorAll("*"));
     // const allTextNodes = getAllTextNodes(this._element).slice(1);
@@ -102,52 +119,58 @@ class Page {
           )
       );
 
-    notes.forEach((note) => {
-      const ranges = note.ranges.map((rangeData) => {
-        return rangeData.toRange(this);
-      });
 
-      const selection = window.getSelection();
+    
+    // notes.forEach((note) => {
+    //   const ranges = note.ranges.map((rangeData) => {
+    //     return rangeData.toRange(this);
+    //   });
 
-      if (selection == null) return;
+    //   console.log(note.highlightedText);
 
-      selection.removeAllRanges();
-      ranges.forEach((range) => selection.addRange(range));
+    //   const selection = window.getSelection();
 
-      highlightElements(
-        selection,
-        [
-          `__highlight-${notesColorToName[note.color]}`,
-          "__note",
-          `__note-id-${note.id}`,
-          note.hasDescription ? "__note-has-desc" : "",
-          "__highlight-bold",
-        ].join(" "),
-        this.originalNodesData
-      );
-    });
+    //   if (selection == null) return;
+
+    //   selection.removeAllRanges();
+    //   ranges.forEach((range) => selection.addRange(range));
+
+    //   highlightElements(
+    //     note.highlightedText,
+    //     selection,
+    //     [
+    //       `__highlight-${notesColorToName[note.color]}`,
+    //       "__note",
+    //       `__note-id-${note.id}`,
+    //       note.hasDescription ? "__note-has-desc" : "",
+    //       "__highlight-bold",
+    //     ].join(" "),
+    //     this.originalNodesData
+    //   );
+    // });
 
     window.getSelection()?.removeAllRanges();
 
-    this._noteElements = new Map();
+    // this._noteElements = new Map();
 
-    Array.from(this._element.getElementsByClassName("__note")).map((node) => {
-      const id =
-        Array.from(node.classList)
-          .find((className) => className.startsWith("__note-id"))
-          ?.substring(10) ?? "";
+    // Array.from(this._element.getElementsByClassName("text-highlight")).map((node) => {
+    //   const id =
+    //     Array.from(node.classList)
+    //       .find((className) => className.startsWith("__note-id"))
+    //       ?.substring(10) ?? "";
 
-      node.addEventListener("click", (e) => {
-        e.preventDefault();
-        this.onNotePressed(id);
-      });
+    //   node.addEventListener("click", (e) => {
+    //     e.preventDefault();
+    //     console.log('CLICOU NA MARCACAO ' + id);
+    //     this.onNotePressed(id);
+    //   });
 
-      if (this._noteElements.has(id)) {
-        this._noteElements.set(id, this._noteElements.get(id)!.concat(node));
-      } else {
-        this._noteElements.set(id, [node]);
-      }
-    });
+    //   if (this._noteElements.has(id)) {
+    //     this._noteElements.set(id, this._noteElements.get(id)!.concat(node));
+    //   } else {
+    //     this._noteElements.set(id, [node]);
+    //   }
+    // });
   }
 
   public passedAnchors: string[] = [];
@@ -156,6 +179,7 @@ class Page {
   private _allAnchors;
   private _allElements;
   private _originalNodesData: OriginalNodeData[];
+  // private _notes: NoteData[];
   private _noteElements: Map<string, Element[]>;
   public consistentInnerLocation: InnerElement | InnerNode | null = null;
 
@@ -233,6 +257,68 @@ class Page {
 
     console.log(`inner pages: ${this._innerPages}`);
   };
+
+  applyNotes(notes: NoteData[]){
+    console.log('page > applyNotes');
+    
+    this._cleanNotes();
+    let html = this._element.innerHTML;
+
+    notes.forEach((note) => {
+      console.log(note.highlightedText);
+      html = highlightElements(
+        note.id,
+        note.highlightedText,
+        html!,
+        notesColorToName[note.color]
+      )
+    });
+
+    this.renderHTML(html);
+
+    Array.from(this._element.getElementsByClassName("text-highlight")).map((node) => {
+      const id =
+        Array.from(node.classList)
+          .find((className) => className.startsWith("__note-id"))
+          ?.substring(10) ?? "";
+
+      node.addEventListener("click", (e) => {
+        e.preventDefault();
+        console.log('CLICOU NA MARCACAO ' + id);
+        this.onNotePressed(id);
+      });
+
+      if (this._noteElements.has(id)) {
+        this._noteElements.set(id, this._noteElements.get(id)!.concat(node));
+      } else {
+        this._noteElements.set(id, [node]);
+      }
+    });
+  }
+
+  _cleanNotes(){
+
+    Array.from(this._element.getElementsByClassName('text-highlight')).map((node) => {
+      node.classList.remove('text-highlight');
+      node.classList.remove('__highlight-cor1');
+      node.classList.remove('__highlight-cor2');
+      node.classList.remove('__highlight-cor3');
+      node.classList.remove('__highlight-cor4');
+    });
+
+    // Array.from(element.getElementsByClassName("text-highlight")).map((node) => {
+    //   console.log(node.innerHTML);
+    //   node.innerHTML = node.innerHTML.replace(/<\/?span\s[^>]*>/g, '').replace(/<\/span>/g, '');
+
+    //   // node.classList.remove('__highlight-red');
+    //   // node.classList.remove('__highlight-green');
+    //   // node.classList.remove('__highlight-yellow');
+    //   // node.classList.remove('__highlight-blue');
+    //   // node.classList.remove('__highlight-purple');
+    //   // node.classList.remove('__highlight-orange');
+    //   // node.classList.remove('__highlight-gray');
+    // });
+  }
 
   getInnerPageFromInnerLocation = (innerLocation?: InnerLocation) => {
     if (innerLocation instanceof InnerPage) {
@@ -380,13 +466,22 @@ class Page {
           style[`break${type}`] = "column";
         }
       });
+      
+      // Definir que o tamanho máximo de uma imagem seja a largura e a altura da pagina
+      if (props.element.tagName === "IMG") {
+        // props.element.style.maxWidth = `calc(100vw - ${
+        //   this.style.margin.side * 2
+        //   // this.style.margin.side * 2
+        // }px)`;
 
-      // if (props.element.tagName === "IMG") {
-      //   props.element.style.maxWidth = `calc(100vw - ${
-      //     this.style.margin.side * 2
-      //   }px)`;
-      //   props.element.style.maxHeight = `calc(100vh - ${this.style.margin.top}px - ${this.style.margin.bottom}px)`;
-      // }
+        // props.element.style.maxHeight = `90vh`;
+        // props.element.style.maxHeight = `calc(100vh - ${this.style.margin.top}px - ${this.style.margin.bottom}px)`;
+        // props.element.style.maxHeight = `calc(100vh - ${this.style.margin.top}px - ${this.style.margin.bottom}px)`;
+        // props.element.style.objectFit = 'contain';
+
+        // console.log(`Image maxWidth: ${props.element.style.maxWidth}`);
+        // console.log(`Image maxHeight: ${props.element.style.maxHeight}`);
+      }
     });
   };
 
@@ -406,6 +501,8 @@ class Page {
     this._element.style.left = `calc(${this.innerPage * -100}vw + ${
       this.style.margin.side * this.innerPage
     }px)`;
+
+    // console.log(`includeCalc: ${includeCalc}`);
 
     const firstVisibleText = findFirstVisibleText(this._element);
     if (firstVisibleText == null) {

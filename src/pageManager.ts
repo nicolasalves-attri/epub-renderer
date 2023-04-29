@@ -14,6 +14,8 @@ import {
   onStyle,
   notifyLink,
   notifyNotePress,
+  onPreloadPages,
+  onApplyNotes,
 } from "./controllerCom";
 import InnerLocation from "./models/innerLocation";
 import NoteData, { NoteRangeData } from "./models/noteData";
@@ -46,7 +48,7 @@ class PageManager {
     letterSpacingAdder: 0,
     wordSpacingAdder: 0,
     align: "left",
-    fontFamily: "Arial",
+    fontFamily: "RobotoMono",
     fontPath: "",
     theme: StyleThemes.dark,
   };
@@ -65,9 +67,11 @@ class PageManager {
     onStyle(this.onStyle.bind(this));
     onCSS(this.onCSS.bind(this));
     onClearSelection(this.onClearSelection.bind(this));
+    onPreloadPages(this.onPreloadPages.bind(this));
+    onApplyNotes(this.onApplyNotes.bind(this));
 
     document.addEventListener("selectionchange", this.onSelection.bind(this));
-    this.quickSelection.toggle(true);
+    // this.quickSelection.toggle(true);
 
     notifyLoad();
   }
@@ -78,8 +82,7 @@ class PageManager {
       Array.from(page.container.querySelectorAll("link"))
         .filter((link) => link.getAttribute("type") == "text/css")
         .map(
-          (link) =>
-            new Promise((resolve) => {
+          (link) => new Promise((resolve) => {
               link.onload = link.onerror = resolve;
             })
         )
@@ -132,6 +135,27 @@ class PageManager {
 
   quickClicked = false;
   selectionDelay: NodeJS.Timeout | null = null;
+
+  async onPreloadPages() {
+    console.log('onPreloadPages()');
+  }
+
+  onApplyNotes(notes: NoteData[]) {
+    // (notes).forEach(
+    //   (note) =>
+    //     (note.ranges = note.ranges.map(
+    //       (range) =>
+    //         new NoteRangeData(
+    //           range.startNodeIndex,
+    //           range.startOffset,
+    //           range.endNodeIndex,
+    //           range.endOffset
+    //         )
+    //     ))
+    // );
+
+    this.page?.applyNotes(notes);
+  }
 
   onSelection() {
     if (this.selectionDelay) {
@@ -222,6 +246,7 @@ class PageManager {
           notesData,
           this.onNotePress.bind(this)
         );
+        
         await this.processPage(this.page);
         this.page.initialize();
       }
@@ -229,8 +254,8 @@ class PageManager {
       assert(this.page != null, "Page should not be null");
 
       this.pageInnerLocation = innerLocation;
-      this.page.innerPage =
-        this.page.getInnerPageFromInnerLocation(innerLocation);
+      this.page.innerPage = this.page.getInnerPageFromInnerLocation(innerLocation);
+      console.log('innerPage: '+this.page.innerPage);
       this.page.applyStyleShowInnerPage();
       // console.log(
       //   "originalNodesData",

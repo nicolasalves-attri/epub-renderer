@@ -67,19 +67,27 @@ export class NoteRangeData {
   }
 }
 
-enum NoteDataColor {
-  Yellow,
-  Green,
-  Blue,
-  Red,
+// enum NoteDataColor {
+//   Yellow,
+//   Green,
+//   Blue,
+//   Red,
+// }
+
+enum NoteColor {
+  cor1,
+  cor2,
+  cor3,
+  cor4,
 }
 
 class NoteData {
   constructor(
     public id: string,
     public ranges: NoteRangeData[],
-    public color: NoteDataColor,
-    public hasDescription: boolean
+    public color: NoteColor,
+    public hasDescription: boolean,
+    public highlightedText: string,
   ) {}
 }
 
